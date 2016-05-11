@@ -26,10 +26,6 @@ include_recipe 'java'
 include_recipe 'runit'
 include_recipe 'mesos::install'
 
-link '/usr/lib/libmesos.so' do
-  to '/usr/local/lib/libmesos.so'
-end
-
 directory node['chronos']['home_dir'] do
   owner node['chronos']['user']
   group node['chronos']['group']
@@ -66,7 +62,6 @@ remote_file "#{node['chronos']['home_dir']}/chronos.jar" do
 end
 
 command_line_options_array = []
-
 node['chronos']['options'].each_pair do |name, option|
   command = ''
   unless option.nil?
@@ -128,14 +123,6 @@ else
     command_line_options_array << '--master local'
   end
 end
-
-if node.attribute?('ec2')
-  hostname = "--hostname #{node['ec2']['public_hostname']}"
-else
-  hostname = "--hostname #{node['ipaddress']}"
-end
-
-command_line_options_array << hostname
 
 template "#{node['chronos']['config_dir']}/chronos.conf" do
   source 'chronos.conf.erb'
